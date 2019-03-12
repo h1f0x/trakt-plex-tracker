@@ -63,7 +63,8 @@
                 <div id="collapseUpcoming" class="collapse" data-parent="#accordionUpcoming">
                     <div class="card-body" style="background-color: #3B3938; border-color: #333231;">
                         <ul class="list-group" style="border: 0px;">
-                            <li class="list-group-item" ng-repeat="episode in upcoming | orderBy: 'aired_timestamp'" style="border-color: #333231; border: 0px;">
+                            <li class="list-group-item" ng-repeat="episode in upcoming | orderBy: 'aired_timestamp'"
+                                style="border-color: #333231; border: 0px;">
                                 {{episode.title}}
                                 <span style="font-size: 11px;">(Show: {{episode.show}} | Season: {{episode.season}} | Episode: {{episode.number}})</span>
                                 <span style="float: right; vertical-align: center; padding-top: 5px; font-size: 11px;">{{episode.first_aired}}  </span>
@@ -86,8 +87,12 @@
     </div>
     <div class="col-md-12" style="padding-bottom: 80px;" ng-hide="data.length">
         <div style="position: relative; display: flex; align-items: center; justify-content: center; padding-top: 50px; padding-bottom: 50px; background-color: #333231; border-color: #3B3938; border: 1px;">
-            <img src="images/loading.gif" height="30px" alt=""/>
-            <span style="color: #D1CDC7; margin-left: 12px;">populating tv-shows.. please wait!</span>
+            <img src="images/loading.gif" height="30px" alt="" ng-show="showData"/>
+            <span style="color: #D1CDC7; margin-left: 12px;"
+                  ng-show="showData">populating tv-shows.. please wait!</span>
+            <div class="alert alert-danger" style="margin-left: 12px;" ng-hide="showData">
+                <strong>Ups!</strong> "shows.json" not ready (yet).. please wait a moment and refresh the page</a>.
+            </div>
         </div>
     </div>
     <div class="col-md-12" style="padding-bottom: 80px;" ng-show="data.length">

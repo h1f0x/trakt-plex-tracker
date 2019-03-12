@@ -12,10 +12,10 @@ from sqlite3 import Error
 from trakt import Trakt
 
 # Variables
-directory_database = './db'
-directory_data = './frontend/data'
+directory_database = os.path.join(os.path.dirname(__file__), 'db')
+directory_data = os.path.join(os.path.dirname(__file__), 'frontend/data')
 plex_database_destination = os.path.join(directory_database, 'com.plexapp.plugins.library.db')
-config_file = './config.ini'
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 logging.basicConfig(level=logging.DEBUG)

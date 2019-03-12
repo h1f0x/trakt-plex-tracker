@@ -11,6 +11,7 @@ app.filter('offset', function () {
 
 
 app.controller("tvTraker", function ($scope, $http) {
+    $scope.showData = true;
     setTimeout(function () {
         $scope.$apply(function () {
             $http.get('data/shows.json').then(function (data) {
@@ -38,6 +39,9 @@ app.controller("tvTraker", function ($scope, $http) {
                         })
                     })
                 });
+            })
+            .catch(function(err) {
+              $scope.showData = false;
             });
         });
     }, 2000);
