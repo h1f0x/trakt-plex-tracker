@@ -1,6 +1,6 @@
 // Code goes here
 
-var app = angular.module("app");
+var app = angular.module("app", []);
 
 app.filter('offset', function () {
     return function (input, start) {
