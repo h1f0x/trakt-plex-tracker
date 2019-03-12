@@ -16,6 +16,7 @@ directory_database = os.path.join(os.path.dirname(__file__), 'db')
 directory_data = os.path.join(os.path.dirname(__file__), 'frontend/data')
 plex_database_destination = os.path.join(directory_database, 'com.plexapp.plugins.library.db')
 config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
+output_file = os.path.join(os.path.dirname(__file__), 'frontend/data/shows.json')
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -235,7 +236,7 @@ if __name__ == '__main__':
 
     result = calculate_owning(data)
 
-    data_file = open("./frontend/data/shows.json", "w")
+    data_file = open(output_file, "w")
     data_file.write(simplejson.dumps(result, indent=4, sort_keys=True, default=str))
     data_file.close()
 
