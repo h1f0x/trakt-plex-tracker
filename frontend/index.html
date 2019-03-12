@@ -1,0 +1,207 @@
+<!-- DOCTYPE -->
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <title>Boostrap 4 - Tutorial</title>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="author" content="Sam Norton">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700,900,300' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic'
+          rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Raleway:400,300,600,700,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+<body style="background-color: #666665;">
+<!---CONTENT HERE-->
+<style type="text/css" media="screen">
+    a:link {
+        color: #D1CDC7;
+        text-decoration: none;
+    }
+
+    a:visited {
+        color: #D1CDC7;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #D1CDC7;
+        text-decoration: none;
+    }
+
+    a:active {
+        color: #D1CDC7;
+        text-decoration: underline;
+    }
+</style>
+<div class="container" ng-controller="tvTraker">
+    <div class="col-md-12">
+        <div style="background-color: #333231;">
+            <div class="jumbotron">
+                <h2>Trakt-or for TV-Shows</h2>
+                <p>All PLEX libraries containing tv-shows are compared to the trakt.tv database.</p>
+
+                <span ng-show="data.length">{{data.length}} TV-Shows detected.</span>
+                <span ng-show="data.length" style="font-size: 11px;"><br>{{lastUpdate}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding-bottom: 20px;" ng-show="data.length">
+        <div id="accordionUpcoming" style="background-color: #333231; border-color: #3B3938; border: 1px;">
+            <div class="card" style="border-color: #333231; border: 0px;">
+                <div class="card-header" style="background-color: #333231;">
+                    <a class="card-link" data-toggle="collapse" href="#collapseUpcoming">
+                        Upcoming TV-Shows (next 7 days)
+                    </a>
+                </div>
+                <div id="collapseUpcoming" class="collapse" data-parent="#accordionUpcoming">
+                    <div class="card-body" style="background-color: #3B3938; border-color: #333231;">
+                        <ul class="list-group" style="border: 0px;">
+                            <li class="list-group-item" ng-repeat="episode in upcoming | orderBy: 'aired_timestamp'" style="border-color: #333231; border: 0px;">
+                                {{episode.title}}
+                                <span style="font-size: 11px;">(Show: {{episode.show}} | Season: {{episode.season}} | Episode: {{episode.number}})</span>
+                                <span style="float: right; vertical-align: center; padding-top: 5px; font-size: 11px;">{{episode.first_aired}}  </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding-bottom: 20px" ng-show="data.length">
+        <table width="100%">
+            <tr>
+                <td colspan="2">
+                    <input type="text" class="form-control form-control" ng-model="filterShow"
+                           placeholder="Filter by show title">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-12" style="padding-bottom: 80px;" ng-hide="data.length">
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; padding-top: 50px; padding-bottom: 50px; background-color: #333231; border-color: #3B3938; border: 1px;">
+            <img src="images/loading.gif" height="30px" alt=""/>
+            <span style="color: #D1CDC7; margin-left: 12px;">populating tv-shows.. please wait!</span>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding-bottom: 80px;" ng-show="data.length">
+        <div id="accordion" style="background-color: #333231; border-color: #3B3938; border: 1px;">
+
+            <div class="card"
+                 ng-repeat="show in data |orderBy: 'owning_percent' | filter: {title: filterShow} as filtered"
+                 style="border-color: #333231; border: 0px;">
+                <div class="card-header" style="background-color: #333231;">
+
+                    <a class="card-link" data-toggle="collapse" href="#collapse{{show.href}}">
+                        <table width="100%">
+                            <tr>
+                                <td>{{show.plex_title}}</td>
+                                <td width="120px" style="float: right; font-size: 11px;">Missing Episodes:
+                                    <span>{{show.owning_episodes_false}}</span></td>
+                                <td width="140px" style="float: right; font-size: 11px;">Available Episodes: <span>{{show.owning_episodes_false + show.owning_episodes_true}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%">
+                            <tr>
+                                <td width="100px" style="font-size: 11px;">Progress:</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar"
+                                             style="width:{{show.owning_percent}}%;  font-size: 11px; background-color: #FFC022; color: #333231;">
+                                            {{show.owning_percent |
+                                            number:1}}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </a>
+                </div>
+                <div id="collapse{{show.href}}" class="collapse" data-parent="#accordion"
+                     style="background-color: #3B3938; border-color: #333231;">
+                    <div class="card-body">
+
+                        <div id="accordion{{show.href}}">
+
+                            <div class="card" ng-repeat="season in show.seasons"
+                                 style="border-color: #333231; border: 0px;">
+                                <div class="card-header" style="background-color: #333231;">
+                                    <a class="card-link" data-toggle="collapse"
+                                       href="#collapse{{show.href}}Season{{season.number}}">
+                                        <table width="100%">
+                                            <tr>
+                                                <td>Season {{season.number}}</td>
+                                                <td width="120px" style="float: right; font-size: 11px;">Missing
+                                                    Episodes: <span>{{season.owning_episodes_false}}</span>
+                                                </td>
+                                                <td width="140px" style="float: right; font-size: 11px;">Available
+                                                    Episodes: <span>{{season.owning_episodes_false + season.owning_episodes_true}}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table width="100%">
+                                            <tr>
+                                                <td width="100px" style="font-size: 11px;">Progress:</td>
+                                                <td>
+                                                    <div class="progress">
+                                                        <div class="progress-bar"
+                                                             style="width:{{season.owning_percent}}%; font-size: 11px; background-color: #FF8622; color: #333231;">
+                                                            <span ng-if="season.owning_percent > 0">{{season.owning_percent | number:1}}%</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </a>
+                                </div>
+                                <div id="collapse{{show.href}}Season{{season.number}}" class="collapse"
+                                     data-parent="#accordion{{show.href}}"
+                                     style="background-color: #3B3938; border-color: #333231;">
+                                    <div class="card-body">
+                                        <ul class="list-group" style="border: 0px;">
+                                            <li class="list-group-item" ng-repeat="episode in season.episodes">
+                                      <span ng-if="episode.aired">
+                                          <span class="badge badge-success" ng-if="episode.owning"
+                                                style="margin-right: 15px;">OK</span>
+                                          <span class="badge badge-danger" ng-if="!episode.owning"
+                                                style="margin-right: 15px;">Missing</span>
+                                      </span>
+                                                <span class="badge badge-secondary"
+                                                      ng-if="!episode.aired"
+                                                      style="margin-right: 15px;">not yet aired</span>
+
+                                                {{episode.title}} <span ng-if="episode.plex_title"
+                                                                        style="font-size: 11px;">(Plex: {{episode.plex_title}})</span>
+                                                <span style="float: right; vertical-align: center; padding-top: 5px; font-size: 11px;">{{episode.first_aired}}  </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScripts -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="./js/bootstrap.min.js"></script>
+<script data-require="angular.js@1.4.3" data-semver="1.4.3"
+        src="https://code.angularjs.org/1.4.3/angular.js"></script>
+<script data-require="angular-route@*" data-semver="1.4.3"
+        src="https://code.angularjs.org/1.4.3/angular-route.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
