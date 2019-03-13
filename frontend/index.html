@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="app">
 <head>
-    <title>Trakt-or.py</title>
+    <title>Trakt.or</title>
     <!-- Required meta tags always come first -->
     <meta charset="utf-8">
     <meta name="author" content="H1f0x">
@@ -17,7 +17,7 @@
     <link href='https://fonts.googleapis.com/css?family=Raleway:400,300,600,700,900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
-<body style="background-color: #666665;">
+<body style="background-color: #666665;" ng-controller="tvTraker">
 <!---CONTENT HERE-->
 <style type="text/css" media="screen">
     a:link {
@@ -40,18 +40,30 @@
         text-decoration: underline;
     }
 </style>
-<div class="container" ng-controller="tvTraker">
-    <div class="col-md-12">
-        <div style="background-color: #333231;">
-            <div class="jumbotron">
-                <h2>Trakt-or for TV-Shows</h2>
-                <p>All PLEX libraries containing tv-shows are compared to the trakt.tv database.</p>
 
-                <span ng-show="data.length">{{data.length}} TV-Shows detected.</span>
-                <span ng-show="data.length" style="font-size: 11px;"><br>{{lastUpdate}}</span>
-            </div>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+    <img src="./images/logo.png" width="24" height="24" class="d-inline-block align-top" alt="">
+     Trakt.or
+  </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #D1CDC7; font-size: 11px;">
+        <ul class="navbar-nav mr-auto">
+
+        </ul>
+        <span ng-show="data.length" style="padding-right: 15px; position: relative; display: flex; align-items: center; justify-content: center;">
+            <img src="./images/tv.png" width="16" height="16" class="d-inline-block align-top" alt="" style="margin-right: 8px;"> {{data.length}}
+        </span>
+        <span ng-show="data.length" style="padding-right: 15px; position: relative; display: flex; align-items: center; justify-content: center;">
+            <img src="./images/update.png" width="14" height="14" class="d-inline-block align-top" alt="" style="margin-right: 8px;"> {{lastUpdate | date:'medium'}}
+        </span>
     </div>
+</nav>
+<div class="container" style="margin-top: 20px;">
     <div class="col-md-12" style="padding-bottom: 20px;" ng-show="data.length">
         <div id="accordionUpcoming" style="background-color: #333231; border-color: #3B3938; border: 1px;">
             <div class="card" style="border-color: #333231; border: 0px;">
@@ -85,7 +97,7 @@
             </tr>
         </table>
     </div>
-    <div class="col-md-12" style="padding-bottom: 80px;" ng-hide="data.length">
+    <div class="col-md-12" style="padding-bottom: 20px;" ng-hide="data.length">
         <div style="position: relative; display: flex; align-items: center; justify-content: center; padding-top: 50px; padding-bottom: 50px; background-color: #333231; border-color: #3B3938; border: 1px;">
             <img src="images/loading.gif" height="30px" alt="" ng-show="showData"/>
             <span style="color: #D1CDC7; margin-left: 12px;"
@@ -95,7 +107,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-12" style="padding-bottom: 80px;" ng-show="data.length">
+    <div class="col-md-12" style="padding-bottom: 20px;" ng-show="data.length">
         <div id="accordion" style="background-color: #333231; border-color: #3B3938; border: 1px;">
 
             <div class="card"
@@ -198,6 +210,10 @@
             </div>
         </div>
     </div>
+</div>
+
+<div style="width: 100%; position: relative; display: flex; align-items: center; justify-content: center; padding-bottom: 10px;">
+    <span style="font-size: 11px;">&copy; Copyright 2019 github.com/h1f0x</span>
 </div>
 
 <!-- JavaScripts -->
