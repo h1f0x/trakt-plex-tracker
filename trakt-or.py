@@ -6,10 +6,12 @@ import os
 import simplejson
 import configparser
 import shutil
+import json
 
 from datetime import datetime
 from sqlite3 import Error
 from trakt import Trakt
+from urllib.request import Request, urlopen
 
 # Variables
 directory_database = os.path.join(os.path.dirname(__file__), 'db')
@@ -17,7 +19,6 @@ directory_data = os.path.join(os.path.dirname(__file__), 'frontend/data')
 plex_database_destination = os.path.join(directory_database, 'com.plexapp.plugins.library.db')
 config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 output_file = os.path.join(os.path.dirname(__file__), 'frontend/data/shows.json')
-
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -85,16 +86,43 @@ def plex_select_all_tv(conn):
     return items
 
 
-def find_trakt_show(query, media=None, year=None):
+def get_translated_title(query, item, client_id, language):
+    for show_key, show_value in item.keys:
+        if show_key == 'slug':
+            headers = {
+                'Content-Type': 'application/json',
+                'trakt-api-version': '2',
+                'trakt-api-key': client_id
+            }
+            request = Request('https://api.trakt.tv/shows/' + show_value + '/translations/' + language, headers=headers)
+
+            response_body = urlopen(request).read()
+            j = json.loads(response_body.decode("utf-8"))
+            if len(j) > 0:
+                if j[0]['title'] in query:
+                    return item
+
+
+def find_trakt_show(query, media=None, year=None, client_id=None, language='en'):
     items = Trakt['search'].query(query, media, year, extended='full')
 
     tv_show = {}
 
+    if items[0].score < 1000:
+        for item in items:
+            match = get_translated_title(query, item, client_id, language)
+            if match != None:
+                items[0] = match
+
     for show_key, show_value in items[0].keys:
+
         if show_key == 'trakt':
             tv_show['plex_title'] = query
             tv_show['title'] = items[0].title
-            tv_show['href'] = items[0].title.replace(' ', '').replace("'", '').replace(":", '').replace("-",'').replace(".",'').replace(":",'')
+            tv_show['href'] = items[0].title.replace(' ', '').replace("'", '').replace(":", '').replace("-",
+                                                                                                        '').replace(".",
+                                                                                                                    '').replace(
+                ":", '')
             tv_show['year'] = items[0].year
             tv_show['seasons'] = []
 
@@ -119,7 +147,8 @@ def find_trakt_show(query, media=None, year=None):
                     season_episode['number'] = details_season[episode].keys[0][1]
                     season_episode['title'] = details_season[episode].title
                     if details_season[episode].first_aired != None:
-                        timestamp = datetime.strptime(str(details_season[episode].first_aired).split(' ')[0], '%Y-%m-%d')
+                        timestamp = datetime.strptime(str(details_season[episode].first_aired).split(' ')[0],
+                                                      '%Y-%m-%d')
                         details_season[episode].first_aired = timestamp.strftime('%B %d, %Y')
                         season_episode['aired_timestamp'] = timestamp.timestamp()
 
@@ -161,7 +190,6 @@ def compare_plex_trakt(plex, trakt):
 
 
 def calculate_owning(data):
-
     for show in data:
         show_owning_true = 0
         show_owning_false = 0
@@ -183,12 +211,12 @@ def calculate_owning(data):
                 season['aired'] = False
             else:
                 season['aired'] = True
-                season_owning_percent = (100/(season_owning_true + season_owning_false)) * season_owning_true
+                season_owning_percent = (100 / (season_owning_true + season_owning_false)) * season_owning_true
                 season['owning_percent'] = season_owning_percent
                 season['owning_episodes_true'] = season_owning_true
                 season['owning_episodes_false'] = season_owning_false
 
-        show['owning_percent'] = (100/(show_owning_true + show_owning_false)) * show_owning_true
+        show['owning_percent'] = (100 / (show_owning_true + show_owning_false)) * show_owning_true
         show['owning_episodes_true'] = show_owning_true
         show['owning_episodes_false'] = show_owning_false
 
@@ -208,9 +236,10 @@ def prepare_file_system(plex_database_origin):
         print('Copy of plex database failed! Exit.')
         exit(1)
 
+
 if __name__ == '__main__':
 
-    #Read config
+    # Read config
     config = configparser.ConfigParser()
     config.read(config_file)
 
@@ -229,7 +258,9 @@ if __name__ == '__main__':
 
     trakt_shows = []
     for show in plex_shows:
-        trakt_show = find_trakt_show(show['name'], 'show', show['year'])
+        print(config['Plex']['library_language'])
+        trakt_show = find_trakt_show(show['name'], 'show', show['year'], config['trakt.tv']['client_id'],
+                                     config['Plex']['library_language'])
         trakt_shows.append(trakt_show)
 
     data = compare_plex_trakt(plex_shows, trakt_shows)
@@ -239,5 +270,3 @@ if __name__ == '__main__':
     data_file = open(output_file, "w")
     data_file.write(simplejson.dumps(result, indent=4, sort_keys=True, default=str))
     data_file.close()
-
-
