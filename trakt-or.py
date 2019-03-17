@@ -175,6 +175,7 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
         tv_show = {}
         tv_show['plex_title'] = query + " (Title not found)"
         tv_show['title'] = query + " (Title not found)"
+        tv_show['seasons'] = []
         return tv_show
 
 
@@ -201,27 +202,33 @@ def calculate_owning(data):
         show_owning_true = 0
         show_owning_false = 0
 
-        for season in show['seasons']:
-            season_owning_true = 0
-            season_owning_false = 0
+        try:
+            for season in show['seasons']:
+                season_owning_true = 0
+                season_owning_false = 0
 
-            for episode in season['episodes']:
-                if episode['aired'] == True:
-                    if episode['owning'] == True:
-                        season_owning_true += 1
-                        show_owning_true += 1
+                try:
+                    for episode in season['episodes']:
+                        if episode['aired'] == True:
+                            if episode['owning'] == True:
+                                season_owning_true += 1
+                                show_owning_true += 1
+                            else:
+                                season_owning_false += 1
+                                show_owning_false += 1
+
+                    if (season_owning_true + season_owning_false) == 0:
+                        season['aired'] = False
                     else:
-                        season_owning_false += 1
-                        show_owning_false += 1
-
-            if (season_owning_true + season_owning_false) == 0:
-                season['aired'] = False
-            else:
-                season['aired'] = True
-                season_owning_percent = (100 / (season_owning_true + season_owning_false)) * season_owning_true
-                season['owning_percent'] = season_owning_percent
-                season['owning_episodes_true'] = season_owning_true
-                season['owning_episodes_false'] = season_owning_false
+                        season['aired'] = True
+                        season_owning_percent = (100 / (season_owning_true + season_owning_false)) * season_owning_true
+                        season['owning_percent'] = season_owning_percent
+                        season['owning_episodes_true'] = season_owning_true
+                        season['owning_episodes_false'] = season_owning_false
+                except:
+                    pass
+        except:
+            pass
 
         show['owning_percent'] = (100 / (show_owning_true + show_owning_false)) * show_owning_true
         show['owning_episodes_true'] = show_owning_true
