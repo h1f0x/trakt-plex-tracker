@@ -219,21 +219,21 @@ def calculate_owning(data):
                         season['aired'] = False
                     else:
                         season['aired'] = True
+
+                        season['owning_percent'] = 0
                         try:
-                            season_owning_percent = (100 / (season_owning_true + season_owning_false)) * season_owning_true
-                        except:
-                            season_owning_percent = 0
-                        season['owning_percent'] = season_owning_percent
+                            season['owning_percent'] = (100 / (season_owning_true + season_owning_false)) * season_owning_true
+
                         season['owning_episodes_true'] = season_owning_true
                         season['owning_episodes_false'] = season_owning_false
                 except:
                     pass
         except:
             pass
+
+        show['owning_percent'] = 0
         try:
             show['owning_percent'] = (100 / (show_owning_true + show_owning_false)) * show_owning_true
-        except:
-            show['owning_percent'] = 0
         show['owning_episodes_true'] = show_owning_true
         show['owning_episodes_false'] = show_owning_false
 
