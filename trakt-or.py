@@ -171,12 +171,7 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
         return tv_show
 
     except:
-        print("ERROR: " + query + " not found on Trakt.tv")
-        tv_show = {}
-        tv_show['plex_title'] = query + " (Title not found)"
-        tv_show['title'] = query + " (Title not found)"
-        tv_show['seasons'] = []
-        return tv_show
+        pass
 
 
 def compare_plex_trakt(plex, trakt):
