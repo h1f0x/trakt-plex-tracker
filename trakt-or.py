@@ -107,68 +107,75 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
     items = Trakt['search'].query(query, media, year, extended='full')
 
     tv_show = {}
+    try:
+        if items[0].score < 1000:
+            for item in items:
+                match = get_translated_title(query, item, client_id, language)
+                if match != None:
+                    items[0] = match
 
-    if items[0].score < 1000:
-        for item in items:
-            match = get_translated_title(query, item, client_id, language)
-            if match != None:
-                items[0] = match
+        for show_key, show_value in items[0].keys:
 
-    for show_key, show_value in items[0].keys:
+            if show_key == 'trakt':
+                tv_show['plex_title'] = query
+                tv_show['title'] = items[0].title
+                tv_show['href'] = items[0].title.replace(' ', '').replace("'", '').replace(":", '').replace("-",
+                                                                                                            '').replace(".",
+                                                                                                                        '').replace(
+                    ":", '')
+                tv_show['year'] = items[0].year
+                tv_show['seasons'] = []
 
-        if show_key == 'trakt':
-            tv_show['plex_title'] = query
-            tv_show['title'] = items[0].title
-            tv_show['href'] = items[0].title.replace(' ', '').replace("'", '').replace(":", '').replace("-",
-                                                                                                        '').replace(".",
-                                                                                                                    '').replace(
-                ":", '')
-            tv_show['year'] = items[0].year
-            tv_show['seasons'] = []
+                seasons = Trakt['shows'].seasons(show_value, extended='full')
 
-            seasons = Trakt['shows'].seasons(show_value, extended='full')
+                if "Season S00" in str(seasons):
+                    count_seasons = len(seasons) - 1
+                else:
+                    count_seasons = len(seasons)
 
-            if "Season S00" in str(seasons):
-                count_seasons = len(seasons) - 1
-            else:
-                count_seasons = len(seasons)
+                season = 1
+                while season <= count_seasons:
+                    show_season = {}
+                    details_season = Trakt['shows'].season(show_value, season, extended='full')
+                    show_season['number'] = season
+                    count_episodes = len(details_season)
+                    show_season['episodes'] = []
 
-            season = 1
-            while season <= count_seasons:
-                show_season = {}
-                details_season = Trakt['shows'].season(show_value, season, extended='full')
-                show_season['number'] = season
-                count_episodes = len(details_season)
-                show_season['episodes'] = []
+                    episode = 0
+                    while episode < count_episodes:
+                        season_episode = {}
+                        season_episode['number'] = details_season[episode].keys[0][1]
+                        season_episode['title'] = details_season[episode].title
+                        if details_season[episode].first_aired != None:
+                            timestamp = datetime.strptime(str(details_season[episode].first_aired).split(' ')[0],
+                                                          '%Y-%m-%d')
+                            details_season[episode].first_aired = timestamp.strftime('%B %d, %Y')
+                            season_episode['aired_timestamp'] = timestamp.timestamp()
 
-                episode = 0
-                while episode < count_episodes:
-                    season_episode = {}
-                    season_episode['number'] = details_season[episode].keys[0][1]
-                    season_episode['title'] = details_season[episode].title
-                    if details_season[episode].first_aired != None:
-                        timestamp = datetime.strptime(str(details_season[episode].first_aired).split(' ')[0],
-                                                      '%Y-%m-%d')
-                        details_season[episode].first_aired = timestamp.strftime('%B %d, %Y')
-                        season_episode['aired_timestamp'] = timestamp.timestamp()
+                            if timestamp.timestamp() > datetime.now().timestamp():
+                                season_episode['aired'] = False
+                            else:
+                                season_episode['aired'] = True
 
-                        if timestamp.timestamp() > datetime.now().timestamp():
-                            season_episode['aired'] = False
                         else:
-                            season_episode['aired'] = True
+                            season_episode['aired'] = False
 
-                    else:
-                        season_episode['aired'] = False
+                        season_episode['first_aired'] = details_season[episode].first_aired
+                        season_episode['owning'] = False
+                        show_season['episodes'].append(season_episode)
+                        episode += 1
 
-                    season_episode['first_aired'] = details_season[episode].first_aired
-                    season_episode['owning'] = False
-                    show_season['episodes'].append(season_episode)
-                    episode += 1
+                    tv_show['seasons'].append(show_season)
+                    season += 1
 
-                tv_show['seasons'].append(show_season)
-                season += 1
+        return tv_show
 
-    return tv_show
+    except:
+        print("ERROR: " + query + " not found on Trakt.tv")
+        tv_show = {}
+        tv_show['plex_title'] = query + " (Title not found)"
+        tv_show['title'] = query + " (Title not found)"
+        return tv_show
 
 
 def compare_plex_trakt(plex, trakt):
