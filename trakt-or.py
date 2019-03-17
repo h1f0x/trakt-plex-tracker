@@ -177,17 +177,20 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
 def compare_plex_trakt(plex, trakt):
     for show_plex in plex:
         for show_trakt in trakt:
-            if show_plex['name'] == show_trakt['plex_title']:
+            try:
+                if show_plex['name'] == show_trakt['plex_title']:
 
-                for season_plex in show_plex['seasons']:
-                    for season_trakt in show_trakt['seasons']:
-                        if season_plex['number'] == season_trakt['number']:
+                    for season_plex in show_plex['seasons']:
+                        for season_trakt in show_trakt['seasons']:
+                            if season_plex['number'] == season_trakt['number']:
 
-                            for episode_plex in season_plex['episodes']:
-                                for episode_trakt in season_trakt['episodes']:
-                                    if episode_plex['episode'] == episode_trakt['number']:
-                                        episode_trakt['owning'] = True
-                                        episode_trakt['plex_title'] = episode_plex['name']
+                                for episode_plex in season_plex['episodes']:
+                                    for episode_trakt in season_trakt['episodes']:
+                                        if episode_plex['episode'] == episode_trakt['number']:
+                                            episode_trakt['owning'] = True
+                                            episode_trakt['plex_title'] = episode_plex['name']
+            except:
+                pass
 
     return trakt
 
