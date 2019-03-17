@@ -171,7 +171,7 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
         return tv_show
 
     except:
-        continue
+        pass
 
 
 def compare_plex_trakt(plex, trakt):
@@ -190,7 +190,7 @@ def compare_plex_trakt(plex, trakt):
                                             episode_trakt['owning'] = True
                                             episode_trakt['plex_title'] = episode_plex['name']
             except:
-                continue
+                pass
 
     return trakt
 
@@ -227,9 +227,9 @@ def calculate_owning(data):
                         season['owning_episodes_true'] = season_owning_true
                         season['owning_episodes_false'] = season_owning_false
                 except:
-                    continue
+                    pass
         except:
-            continue
+            pass
         try:
             show['owning_percent'] = (100 / (show_owning_true + show_owning_false)) * show_owning_true
         except:
