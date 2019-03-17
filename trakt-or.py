@@ -236,9 +236,9 @@ def calculate_owning(data):
         show['owning_percent'] = 0
         try:
             show['owning_percent'] = (100 / (show_owning_true + show_owning_false)) * show_owning_true
-        except
+        except:
             pass
-        
+
         show['owning_episodes_true'] = show_owning_true
         show['owning_episodes_false'] = show_owning_false
 
