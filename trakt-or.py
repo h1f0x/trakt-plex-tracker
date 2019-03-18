@@ -7,6 +7,7 @@ import simplejson
 import configparser
 import shutil
 import json
+import re
 
 from datetime import datetime
 from sqlite3 import Error
@@ -46,6 +47,17 @@ def plex_select_all_tv(conn):
     items = []
     for show in shows:
         tv_show = {}
+
+        if '(' in show:
+            if ')' in show:
+                try:
+                    print(show)
+                    regex = r"(.*?) \((.*)\)"
+                    title_only = re.search(regex, show).group(1)
+                    tv_show['mod_name'] = title_only
+                except:
+                    pass
+
         tv_show['name'] = show
         tv_show['items'] = []
         items.append(
@@ -104,15 +116,17 @@ def get_translated_title(query, item, client_id, language):
 
 
 def find_trakt_show(query, media=None, year=None, client_id=None, language='en'):
+
     items = Trakt['search'].query(query, media, year, extended='full')
 
     tv_show = {}
     try:
-        if items[0].score < 1000:
-            for item in items:
-                match = get_translated_title(query, item, client_id, language)
-                if match != None:
-                    items[0] = match
+        if language != 'en':
+            if items[0].score < 1000:
+                for item in items:
+                    match = get_translated_title(query, item, client_id, language)
+                    if match != None:
+                        items[0] = match
 
         for show_key, show_value in items[0].keys:
 
@@ -171,6 +185,11 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
         return tv_show
 
     except:
+        tv_show['plex_title'] = query + ' (Error - Title not found)'
+        tv_show['title'] = query + ' (Error - Title not found)'
+        tv_show['year'] = year
+        tv_show['seasons'] = []
+        tv_show['href'] = query + ' (Error - Title not found)'
         pass
 
 
@@ -280,10 +299,15 @@ if __name__ == '__main__':
 
     trakt_shows = []
     for show in plex_shows:
-        print(config['Plex']['library_language'])
-        trakt_show = find_trakt_show(show['name'], 'show', show['year'], config['trakt.tv']['client_id'],
-                                     config['Plex']['library_language'])
-        trakt_shows.append(trakt_show)
+        try:
+            trakt_show = find_trakt_show(show['mod_name'], 'show', show['year'], config['trakt.tv']['client_id'],
+                                         config['Plex']['library_language'])
+            trakt_show['plex_title'] = show['name']
+            trakt_shows.append(trakt_show)
+        except:
+            trakt_show = find_trakt_show(show['name'], 'show', show['year'], config['trakt.tv']['client_id'],
+                                         config['Plex']['library_language'])
+            trakt_shows.append(trakt_show)
 
     data = compare_plex_trakt(plex_shows, trakt_shows)
 
