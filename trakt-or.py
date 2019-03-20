@@ -190,7 +190,8 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
         tv_show['year'] = year
         tv_show['seasons'] = []
         tv_show['href'] = query + ' (Error - Title not found)'
-        pass
+        return tv_show
+
 
 
 def compare_plex_trakt(plex, trakt):
