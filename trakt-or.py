@@ -51,7 +51,6 @@ def plex_select_all_tv(conn):
         if '(' in show:
             if ')' in show:
                 try:
-                    print(show)
                     regex = r"(.*?) \((.*)\)"
                     title_only = re.search(regex, show).group(1)
                     tv_show['mod_name'] = title_only
@@ -116,9 +115,7 @@ def get_translated_title(query, item, client_id, language):
 
 
 def find_trakt_show(query, media=None, year=None, client_id=None, language='en'):
-
     items = Trakt['search'].query(query, media, year, extended='full')
-
     tv_show = {}
     try:
         if language != 'en':
@@ -184,7 +181,7 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
 
         return tv_show
 
-    except:
+    except Exception as e:
         tv_show['plex_title'] = query + ' (Error - Title not found)'
         tv_show['title'] = query + ' (Error - Title not found)'
         tv_show['year'] = year
