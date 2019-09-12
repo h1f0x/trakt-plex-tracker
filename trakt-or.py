@@ -135,6 +135,7 @@ def find_trakt_show(query, media=None, year=None, client_id=None, language='en')
                                                                                                                         '').replace(
                     ":", '')
                 tv_show['year'] = items[0].year
+                tv_show['status'] = items[0].status
                 tv_show['seasons'] = []
 
                 seasons = Trakt['shows'].seasons(show_value, extended='full')

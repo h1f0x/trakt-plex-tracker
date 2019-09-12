@@ -118,7 +118,9 @@
                     <a class="card-link" data-toggle="collapse" href="#collapse{{show.href}}">
                         <table width="100%">
                             <tr>
-                                <td>{{show.plex_title}}</td>
+                                <td>{{show.plex_title}}
+                                    <span class="badge badge-success" ng-if="show.status != 'ended'" style="margin-right: 15px;">Running</span>
+                                    <span class="badge badge-danger" ng-if="show.status == 'ended'" style="margin-right: 15px;">Ended</span></td>
                                 <td width="120px" style="float: right; font-size: 11px;">Missing Episodes:
                                     <span>{{show.owning_episodes_false}}</span></td>
                                 <td width="140px" style="float: right; font-size: 11px;">Available Episodes: <span>{{show.owning_episodes_false + show.owning_episodes_true}}</span>
